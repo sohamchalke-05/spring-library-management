@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+    commands:
+      - echo Installing Maven...
+      - mvn --version
+  pre_build:
+    commands:
+      - echo Starting pre-build phase...
+      - echo Cleaning Maven cache
+      - mvn clean
+  build:
+    commands:
+      - echo Build started on `date`
+      - mvn package -DskipTests
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - ls -l target/
+artifacts:
+  files:
+    - target/*.jar
+  discard-paths: yes
+cache:
+  paths:
+    - '/root/.m2/**/*'
