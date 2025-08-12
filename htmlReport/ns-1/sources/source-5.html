@@ -1,0 +1,190 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SessionService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.LibraryManagementHomework.LibraryManagement.services</a>
+</div>
+
+<h1>Coverage Summary for Class: SessionService (com.LibraryManagementHomework.LibraryManagement.services)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SessionService</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/28)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.LibraryManagementHomework.LibraryManagement.services;
+&nbsp;
+&nbsp;import com.LibraryManagementHomework.LibraryManagement.entities.SessionEntity;
+&nbsp;import com.LibraryManagementHomework.LibraryManagement.entities.User;
+&nbsp;import com.LibraryManagementHomework.LibraryManagement.entities.enums.Session_Sub;
+&nbsp;import com.LibraryManagementHomework.LibraryManagement.repository.SessionRepository;
+&nbsp;import com.LibraryManagementHomework.LibraryManagement.utils.SessionMapping;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;
+&nbsp;import java.util.Comparator;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;import static com.LibraryManagementHomework.LibraryManagement.entities.enums.Session_Sub.*;
+&nbsp;
+&nbsp;
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class SessionService {
+&nbsp;
+&nbsp;    private final SessionRepository sessionRepository;
+&nbsp;
+&nbsp;    public void generateNewSession(User user,String refreshToken){
+<b class="nc">&nbsp;        List&lt;SessionEntity&gt; allSessions = sessionRepository.findAllByUser(user);</b>
+&nbsp;
+<b class="nc">&nbsp;        String sessionSubString = user.getSessionSub();</b>
+<b class="nc">&nbsp;        Session_Sub sessionSub = sessionSubString != null</b>
+<b class="nc">&nbsp;                ? Session_Sub.valueOf(sessionSubString.toUpperCase())</b>
+<b class="nc">&nbsp;                : Session_Sub.FREE;</b>
+&nbsp;
+<b class="nc">&nbsp;        if(allSessions.size() == SessionMapping.getSessionCountLimit(sessionSub)){</b>
+<b class="nc">&nbsp;            allSessions.sort(Comparator.comparing(SessionEntity::getRecentlyUsed));</b>
+<b class="nc">&nbsp;            sessionRepository.delete(allSessions.get(0));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        SessionEntity newSession = SessionEntity.builder()</b>
+<b class="nc">&nbsp;                .user(user)</b>
+<b class="nc">&nbsp;                .refreshToken(refreshToken)</b>
+<b class="nc">&nbsp;                .build();</b>
+<b class="nc">&nbsp;        sessionRepository.save(newSession);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isValid(String refreshToken){
+<b class="nc">&nbsp;        System.out.println(&quot;Entered in isValid()&quot;);</b>
+<b class="nc">&nbsp;        SessionEntity sessionEntity = sessionRepository.findByRefreshToken(refreshToken);</b>
+<b class="nc">&nbsp;        return sessionEntity != null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void logoutSession(User user){
+<b class="nc">&nbsp;        SessionEntity sessionEntity = sessionRepository.findByUser(user);</b>
+<b class="nc">&nbsp;        sessionRepository.delete(sessionEntity);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void delete(String oldRefreshToken) {
+<b class="nc">&nbsp;        SessionEntity session = sessionRepository.findByRefreshToken(oldRefreshToken);</b>
+<b class="nc">&nbsp;        if (session != null) {</b>
+<b class="nc">&nbsp;            System.out.println(&quot;Deleting session with ID: &quot; + session.getSessionId());</b>
+<b class="nc">&nbsp;            sessionRepository.delete(session);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            System.out.println(&quot;No session found with token: &quot; + oldRefreshToken);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void save(User user, String newRefreshToken) {
+<b class="nc">&nbsp;        SessionEntity newSession = SessionEntity.builder()</b>
+<b class="nc">&nbsp;                .user(user)</b>
+<b class="nc">&nbsp;                .refreshToken(newRefreshToken)</b>
+<b class="nc">&nbsp;                .build();</b>
+<b class="nc">&nbsp;        sessionRepository.save(newSession);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-06 11:51</div>
+</div>
+</body>
+</html>
